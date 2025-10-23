@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>漢字でにゃんこ大戦争</title>
-<link rel="apple-touch-icon" href="icon.jpg">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <style>
 body {
     margin: 0;
     font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
-    background: linear-gradient(to bottom, #87cefa 60%, #7cfc00 40%);
+    background: url("img/kabe.jpg") repeat fixed; /* ✅ 背景を固定＆繰り返し表示 */
+    background-size: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -33,7 +34,7 @@ h1 {
     padding: 12px 24px;
     margin: 10px;
     width: auto;
-    min-width: 200px;
+    min-width: 250px;
     border-radius: 15px;
     border: none;
     background-color: #fff799;
@@ -45,23 +46,11 @@ h1 {
     background-color: #ffe66d;
     transform: translateY(-2px);
 }
-#clearButton:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
-    transform: none;
-}
 @media (max-width: 600px) {
     .group-button, #nextButton, #restartButton, #clearButton {
         width: 80%;
         white-space: normal;
     }
-}
-#back {
-    max-width: 85%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-    border-radius: 12px;
 }
 #question {
     font-size: 2em;
@@ -123,12 +112,12 @@ h1 {
 
 <!-- ゲーム画面 -->
 <div id="gameScreen" style="display:none;">
-    <img src="img/top.jpg" id="back">
+    <!-- ✅ top.jpgは削除 -->
     <div id="question">練習開始！</div>
     <canvas id="drawCanvas"></canvas>
     <div>
         <button id="nextButton">次へ（クリックして開始）</button>
-        <button id="clearButton" disabled>消去</button>
+        <button id="clearButton" style="display:none;">消去</button>
     </div>
 </div>
 
@@ -144,16 +133,24 @@ h1 {
 
 <script>
 /*============ グループデータ ============*/
-const groups = {
-"1-1": [["「いち」", "一"], ["「みぎ」をむく", "右"], ["「あめ」がふる", "雨"], ["ひゃく「えん」だま", "円"], ["「おう」さま", "王"], ["「おと」がきこえる", "音"], ["「した」", "下"], ["「ひ」あそび", "火"], ["「はな」をうえる", "花"], ["「かい」をひろう", "貝"]],
-"1-2": [["「がく」こうにいく", "学"], ["「き」をすう", "気"], ["「きゅう」にん", "九"], ["「やす」む", "休"], ["「たま」がころがる", "玉"], ["「きん」をほる", "金"], ["「そら」があおい", "空"], ["「つき」がでる", "月"], ["「いぬ」がほえる", "犬"], ["「み」る", "見"]],
-"1-3": [["「ご」にん", "五"], ["「くち」をあける", "口"], ["「がっ」こう", "校"], ["「ひだり」をむく", "左"], ["「さん」さい", "三"], ["「やま」にのぼる", "山"], ["「こ」ども", "子"], ["「よん」さい", "四"], ["「いと」をむすぶ", "糸"], ["「じ」をかく", "字"]],
-"1-4": [["「みみ」でおとをきく", "耳"], ["「しち」じ", "七"], ["「くるま」にのる", "車"], ["「て」をあらう", "手"], ["「じゅう」じ", "十"], ["「で」かける", "出"], ["「おんな」のこ", "女"], ["「ちいさい」", "小"], ["「うえ」をみる", "上"], ["「もり」にいく", "森"]],
-"1-5": [["「ひと」があつまる", "人"], ["「みず」をのむ", "水"], ["「ただ」しい", "正"], ["「い」きる", "生"], ["「あお」いそら", "青"], ["「ゆう」がた", "夕"], ["「いし」をひろう", "石"], ["「あか」い", "赤"], ["「せん」せい", "千"], ["「かわ」であそぶ", "川"]],
-"1-6": [["「さき」にすすむ", "先"], ["「はや」くおきる", "早"], ["「くさ」がのびる", "草"], ["「あし」をあらう", "足"], ["「むら」にすむ", "村"], ["「おお」きい", "大"], ["「おとこ」のこ", "男"], ["「たけ」のこ", "竹"], ["「なか」", "中"], ["「むし」をみつける", "虫"]],
-"1-7": [["「まち」をあるく", "町"], ["「てん」きがいい", "天"], ["「た」でとる", "田"], ["「つち」をさわる", "土"], ["「ふた」つ", "二"], ["「ひ」がでる", "日"], ["「い」る", "入"], ["「とし」をとる", "年"], ["「しろ」い", "白"], ["「はち」ひき", "八"]],
-"1-8": [["「ひゃく」えん", "百"], ["「ふみ」をよむ", "文"], ["「き」をきる", "木"], ["「ほん」をよむ", "本"], ["「なまえ」をかく", "名"], ["「め」をとじる", "目"], ["「た」つ", "立"], ["「ちから」をいれる", "力"], ["「はやし」にいく", "林"], ["「ろく」さい", "六"]]
-};
+const kanjiList = [
+"一","右","雨","円","王","音","下","火","花","貝",
+"学","気","九","休","玉","金","空","月","犬","見",
+"五","口","校","左","三","山","子","四","糸","字",
+"耳","七","車","手","十","出","女","小","上","森",
+"人","水","正","生","青","夕","石","赤","千","川",
+"先","早","草","足","村","大","男","竹","中","虫",
+"町","天","田","土","二","日","入","年","白","八",
+"百","文","木","本","名","目","立","力","林","六"
+];
+const groups = {};
+for (let g = 0; g < 8; g++) {
+    groups[`1-${g+1}`] = [];
+    for (let j = 0; j < 10; j++) {
+        const index = g*10 + j;
+        groups[`1-${g+1}`].push([`「${kanjiList[index]}」をかこう`, kanjiList[index]]);
+    }
+}
 
 /*============ 状態管理 ============*/
 let currentGroup = [];
@@ -209,22 +206,19 @@ function startGroup(key){
     document.getElementById('gameScreen').style.display='block';
     document.getElementById('nextButton').textContent="次へ（クリックして開始）";
     document.getElementById('nextButton').onclick = change;
-    document.getElementById('clearButton').disabled = true;
+    document.getElementById('clearButton').style.display='none';
     document.getElementById('question').textContent="練習開始！";
 }
-
 function change(){
     const Q=document.getElementById('question');
     const clearBtn=document.getElementById('clearButton');
-
     if(i>=10 && t===0){
         Q.textContent="全問終了！結果を確認してね。";
         document.getElementById('nextButton').textContent="結果を見る";
         document.getElementById('nextButton').onclick=endGame;
-        clearBtn.disabled=true;
+        clearBtn.style.display='none';
         return;
     }
-
     if(t===0){
         if(i>0)savedDrawings.push(saveCanvasImage());
         clearCanvas(); drawingEnabled=true;
@@ -232,17 +226,17 @@ function change(){
         Q.textContent=`問${i+1}: ${q}`;
         questionHistory.push({question:q,answer:a});
         document.getElementById('nextButton').textContent="解答へ";
-        clearBtn.disabled=false;
+        clearBtn.style.display='inline-block';
+        clearBtn.onclick = ()=>{ if(drawingEnabled) clearCanvas(); };
         t=1;
     } else {
         drawingEnabled=false;
         Q.textContent=`問${i+1}: ${currentGroup[i][1]}`;
         document.getElementById('nextButton').textContent=(i<9)?"次の問題へ":"結果を見る";
-        clearBtn.disabled=true;
+        clearBtn.style.display='none';
         t=0; i++;
     }
 }
-
 function endGame(){
     savedDrawings.push(saveCanvasImage());
     document.getElementById('gameScreen').style.display='none';
@@ -265,12 +259,6 @@ document.getElementById('restartButton').onclick=()=>{
     i=0;t=0;questionHistory=[];savedDrawings=[];
     document.getElementById('resultsScreen').style.display='none';
     document.getElementById('groupSelect').style.display='block';
-    clearCanvas();
-};
-
-/*============ 消去ボタン機能 ============*/
-document.getElementById('clearButton').onclick=()=>{
-    if(!drawingEnabled)return;
     clearCanvas();
 };
 
